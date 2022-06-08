@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Service Worker Update Demo</title>
+  </head>
+  <body>
+    <button id="update" disabled>update service worker</button>
+    <script>
+      const updateBtn = document.getElementById('update');
+      updateBtn.addEventListener('click', evt => {
+        evt.preventDefault();
+        registration.then(r => r.update());
+      });
+
+      const registration = new Promise(r => navigator.serviceWorker.register('/.netlify/functions/worker').then(r));
+      registration.then(() => updateBtn.disabled = false);
+    </script>
+  </body>
+</html>
