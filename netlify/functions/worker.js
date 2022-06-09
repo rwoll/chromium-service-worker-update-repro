@@ -1,6 +1,6 @@
 const { randomBytes } = require('crypto');
 exports.handler = async function(event, context) {
-  const version = randomBytes(10).toString('hex');
+  const version = event.queryStringParameters.mode === 'same' ? 'static-version' : randomBytes(10).toString('hex');
   return {
     isBase64Encoded: false,
     statusCode: 200,

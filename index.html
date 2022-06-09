@@ -4,16 +4,67 @@
     <title>Service Worker Update Demo</title>
   </head>
   <body>
+    <h1>Service Worker Update Demo Page</h1>
+
+    <p>This page is used to play around with Service Worker Networking.</p>
+
+    <p>
+      Before clicking anything, open:
+      <ol>
+        <li>DevTools > Network Inspector</li>
+        <li>DevTools > Console Log</li>
+        <li>DevTools > Protocol Monitor (optional)</li>
+      </ol>
+    </p>
+
+    <p>When you click <em>register service worker</em>, a Service Worker will be registered.</p>
+    <p>You can then click <em>update service worker</em> to call <code>registration.update()</code> on the registered Service Worker.</p>
+    <p>The Mode selection dictates whether the backend returns the same bytes with each<em>update</em> call as it did with the initial register call.</p>
+    <p>To try in different modes, reload the page.</p>
+    <form id="mode-form">
+      <fieldset id="fields">
+        <label>
+          Mode: <select id="mode">
+            <option value="different">Different Bytes Each Update</option>
+            <option value="same">Same Bytes Each Update</option>
+          </select>
+        </label>
+        <button type="submit">register service worker</button>
+    </fieldset>
+    </form>
+
     <button id="update" disabled>update service worker</button>
     <script>
-      const updateBtn = document.getElementById('update');
-      updateBtn.addEventListener('click', evt => {
+      let submitted = false;
+      const modeForm = document.getElementById('mode-form');
+      modeForm.addEventListener('submit', (evt) => {
         evt.preventDefault();
-        registration.then(r => r.update());
-      });
 
-      const registration = new Promise(r => navigator.serviceWorker.register('/.netlify/functions/worker').then(r));
-      registration.then(() => updateBtn.disabled = false);
+        if (submitted) return;
+        submitted = true;
+
+        document.getElementById('fields').disabled = true;
+        const registration = new Promise(r => navigator.serviceWorker.register(`/.netlify/functions/worker?mode=${document.getElementById('mode').value}&v=${crypto.randomUUID()}`).then(r));
+        registration.then(() => updateBtn.disabled = false);
+
+        const updateBtn = document.getElementById('update');
+        updateBtn.addEventListener('click', evt => {
+          evt.preventDefault();
+          registration.then(r => r.update());
+        });
+      });
     </script>
+
+    <p>To run locally:</p>
+    <p>
+
+      <pre>
+        $ git clone https://github.com/rwoll/chromium-service-worker-update-repro.git
+        $ cd chromium-service-worker-update-repro.git
+        $ npm i
+        $ npx netlify dev
+      </pre>
+    </p>
+    <p>You can then see the server request logs.</p>
   </body>
 </html>
